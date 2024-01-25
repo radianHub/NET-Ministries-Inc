@@ -10,6 +10,8 @@ public class MatchExistingLeadQueueable implements Queueable {
 		Schema.FieldSet initialFormFielset = SObjectType.Lead.FieldSets.getMap().get('Initial_Form_Fields');
 		Schema.FieldSet fullFormFieldset = SObjectType.Lead.FieldSets.getMap().get('Full_Form_Fields');
 
+		uniqueFields.add('Id');
+
 		for (Schema.FieldSetMember field : initialFormFielset.getFields()) {
 			uniqueFields.add(field.getFieldPath());
 		}
@@ -23,7 +25,7 @@ public class MatchExistingLeadQueueable implements Queueable {
 		Set<String> filterFields = Pluck.strings('Formstack_Filter__c', leads);
 		Set<Id> leadIds = Pluck.ids(leads);
 
-		String initialQuery = 'SELECT Id, Status, {0} FROM Lead WHERE Formstack_Filter__c IN :filterFields AND Id NOT IN :leadIds';
+		String initialQuery = 'SELECT {0} FROM Lead WHERE Formstack_Filter__c IN :filterFields AND Id NOT IN :leadIds';
 		String query = String.format(initialQuery, new List<String>{ String.join(uniqueFields, ', ') });
 		List<Lead> existingLeads = Database.query(query);
 
